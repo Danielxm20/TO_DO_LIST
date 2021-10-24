@@ -21,9 +21,14 @@ crs.execute("""
 
 connec.commit()
 
+#Currying
 def complete(id):
     def _complete():
-        print(id)
+        todo = crs.execute("SELECT * from todo WHERE id = ?", (id, )).fetchone()
+        crs.execute("UPDATE todo SET completed = ? WHERE  id = ?", (not todo[3], id))
+        connec.commit()
+        render_todos()
+        #print(id)
     return _complete
 
 
@@ -36,8 +41,10 @@ def render_todos():
         id = rows[i][0]
         completed = rows[i][3]
         description = rows[i][2]
-        cb = Checkbutton(frame, text=description, width=42, anchor="w", command=complete(id))
+        color = "#555555" if completed else "#ffffff"
+        cb = Checkbutton(frame, text=description, fg=color, width=42, anchor="w", command=complete(id))
         cb.grid(row=i, column=0, sticky="w")
+        cb.select() if completed else cb.deselect()
 
 
 def add_todo():
