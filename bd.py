@@ -22,6 +22,13 @@ crs.execute("""
 connec.commit()
 
 #Currying
+def remove(id):
+    def _remove():
+        crs.execute("DELETE FROM todo WHERE id= ?", (id, ))
+        connec.commit()
+        render_todos()
+    return _remove
+
 def complete(id):
     def _complete():
         todo = crs.execute("SELECT * from todo WHERE id = ?", (id, )).fetchone()
@@ -37,6 +44,8 @@ def render_todos():
     #print(len(rows))
     #print(rows)
     
+    for widget in frame.winfo_children():
+        widget.destroy()
     for i in range(0, len(rows)):
         id = rows[i][0]
         completed = rows[i][3]
@@ -44,6 +53,8 @@ def render_todos():
         color = "#555555" if completed else "#ffffff"
         cb = Checkbutton(frame, text=description, fg=color, width=42, anchor="w", command=complete(id))
         cb.grid(row=i, column=0, sticky="w")
+        btn = Button(frame, text="Eliminar", command=remove(id))
+        btn.grid(row=i, column=1)
         cb.select() if completed else cb.deselect()
 
 
