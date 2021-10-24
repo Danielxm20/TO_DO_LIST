@@ -21,15 +21,22 @@ crs.execute("""
 
 connec.commit()
 
+def complete(id):
+    def _complete():
+        print(id)
+    return _complete
+
+
 def render_todos():
     rows = crs.execute("SELECT * FROM todo").fetchall()
-    print(len(rows))
-    print(rows)
+    #print(len(rows))
+    #print(rows)
     
     for i in range(0, len(rows)):
+        id = rows[i][0]
         completed = rows[i][3]
         description = rows[i][2]
-        cb = Checkbutton(frame, text=description, width=42, anchor="w")
+        cb = Checkbutton(frame, text=description, width=42, anchor="w", command=complete(id))
         cb.grid(row=i, column=0, sticky="w")
 
 
@@ -43,7 +50,7 @@ def add_todo():
         todo_entry.delete(0, "end")
         render_todos()
     else:
-        pass
+        pass    
 
 
 label_name = Label(window, text="Tarea")
